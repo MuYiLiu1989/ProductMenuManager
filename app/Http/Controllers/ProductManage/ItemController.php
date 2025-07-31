@@ -4,6 +4,8 @@ namespace App\Http\Controllers\ProductManage;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\ProductCategory;
+use Inertia\Inertia;
 
 class ItemController extends Controller
 {
@@ -20,7 +22,14 @@ class ItemController extends Controller
      */
     public function create()
     {
-        //
+        $categories = ProductCategory::orderBy('sort')->get();
+        
+        // 調試：檢查資料
+        // dd($categories); // 取消註解來查看資料
+        
+        return Inertia::render('ProductManage/ItemForm', [
+            'categories' => $categories
+        ]);
     }
 
     /**
