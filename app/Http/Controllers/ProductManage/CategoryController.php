@@ -15,7 +15,15 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        // 暫時移除條件限制來測試
+        $categories = ProductCategory::orderBy('sort')->get();
+        
+        // 調試：檢查資料
+        // dd($categories); // 取消註解來查看資料
+        
+        return Inertia::render('ProductManage/CategoryIndex', [
+            'categories' => $categories
+        ]);
     }
 
     /**
@@ -69,7 +77,11 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $category = ProductCategory::findOrFail($id);
+        
+        return Inertia::render('ProductManage/CategoryForm', [
+            'category' => $category
+        ]);
     }
 
     /**
@@ -77,7 +89,24 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $category = ProductCategory::findOrFail($id);
+        
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|unique:product_categories,name,' . $id,
+        ]);
+    
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $category->update([
+            'name' => $request->name,
+        ]);
+    
+        return redirect()->route('productManage.category.edit', $id)
+            ->with('success', '種類已成功更新！');
     }
 
     /**
@@ -85,6 +114,44 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $category = ProductCategory::findOrFail($id);
+            $category->delete();
+            
+            return redirect()->route('productManage.category.index')
+                ->with('success', '種類已成功刪除！');
+        } catch (\Exception $e) {
+            return redirect()->route('productManage.category.index')
+                ->withErrors(['error' => $e->getMessage()]);
+            // 刪除失敗，請稍後再試。
+        }
+    }
+
+    public function ajax(Request $request)
+    {
+        // 驗證請求資料是陣列格式
+        $validator = Validator::make($request->all(), [
+            '*.id' => 'required|exists:product_categories,id',
+            '*.sort' => 'required|integer',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()->all(),
+            ]);
+        }
+    
+        // 處理陣列資料
+        $data = $request->all();
+        
+        foreach ($data as $item) {
+            ProductCategory::where('id', $item['id'])->update(['sort' => $item['sort']]);
+        }
+    
+        return response()->json([
+            'success' => true,
+            'message' => '種類順序已成功更新！',
+        ]);
     }
 }
