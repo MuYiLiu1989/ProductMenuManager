@@ -24,9 +24,10 @@ const isEditing = computed(() => props.item !== null);
 
 const form = useForm({
   name: props.item?.name || '',
-  category: props.item?.category || '',
+  category_id: props.item?.category_id || '',
   price: props.item?.price || '',
   stock: props.item?.stock || '',
+  is_visible: props.item?.is_visible || '0'
 })
 
 
@@ -73,6 +74,12 @@ const handleFormError = (errors) => {
     let errorMessage = '請檢查輸入的資料';
     if (errors.name) {
         errorMessage = errors.name;
+    }else if(errors.category_id){
+    	errorMessage = errors.category_id;
+    }else if(errors.price){
+    	errorMessage = errors.price;
+    }else if(errors.stock){
+    	errorMessage = errors.stock;
     }
     
     Swal.fire({
@@ -117,12 +124,12 @@ const handleFormError = (errors) => {
                                     <legend class="text-lg font-semibold text-gray-800 mb-2">類別：</legend>
                                     <select  
                                         class="w-full px-3 py-2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                                        v-model="form.category" 
+                                        v-model="form.category_id" 
                                     >
                                         <option value="">請選擇類別</option>
                                         <option v-for="category in categories" :value="category.id" :key="category.id">{{category.name}}</option>
                                     </select>
-                                    <span v-if="form.errors.category" class="text-red-500 text-sm mt-1 block">{{ form.errors.category }}</span>    
+                                    <span v-if="form.errors.category_id" class="text-red-500 text-sm mt-1 block">{{ form.errors.category_id }}</span>    
                                 </fieldset>
                                 <fieldset class="mb-4">
                                     <legend class="text-lg font-semibold text-gray-800 mb-2">價格：</legend>
@@ -144,26 +151,41 @@ const handleFormError = (errors) => {
                                     />
                                     <span v-if="form.errors.stock" class="text-red-500 text-sm mt-1 block">{{ form.errors.stock }}</span>    
                                 </fieldset>
-                            </div>
-                            <div class="flex gap-2 mt-6">
-                                <button 
-                                    type="submit" 
-                                    :disabled="form.processing"
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-                                >
-                                    {{ isEditing ? '更新' : '新增' }}
-                                </button>
-                                <Link 
-                                    :href="route('productManage.category.index')"
-                                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-                                >
-                                    取消
-                                </Link>
-                            </div>
+                                <fieldset class="mb-4">
+                                    <legend class="text-lg font-semibold text-gray-800 mb-2">是否啟用：</legend>
+                                    <input 
+                                        type="radio" 
+                                        class="w-8 px-3 py-2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500" 
+                                        v-model="form.is_visible"
+                                        value="0"  
+                                    />不啟用
+                                    <input 
+                                        type="radio" 
+                                        class="w-8 px-3 py-2 text-white border border-gray-300 rounded-md focus:outline-none  focus:ring-blue-500" 
+                                        v-model="form.is_visible"
+                                        value="1"  
+                                    />啟用
+                                    <!-- focus:ring-2 矩形外框 -->
+                                    <span v-if="form.errors.is_visible" class="text-red-500 text-sm mt-1 block">{{ form.errors.is_visible }}</span>    
+                                </fieldset>
+	                            <div class="flex gap-3 my-6 mx-2 justify-end">
+	                            	<!--原本是mt-6，新增跟取消上下變很大，取消沒上下置中-->
+	                                <button 
+	                                    type="submit" 
+	                                    :disabled="form.processing"
+	                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+	                                >
+	                                    {{ isEditing ? '更新' : '新增' }}
+	                                </button>
+	                                <Link 
+	                                    :href="route('productManage.category.index')"
+	                                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+	                                >
+	                                    取消
+	                                </Link>
+	                            </div>
+                        	</div>
                         </form>
-                        <div v-if="form.name" class="mt-4">
-                            <p class="text-gray-800">預覽：{{ form.name }}</p>
-                        </div>
                     </div>
                 </div>
             </div>
