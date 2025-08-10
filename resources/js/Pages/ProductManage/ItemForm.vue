@@ -168,6 +168,9 @@ const handleFormError = (errors) => {
                                     <!-- focus:ring-2 矩形外框 -->
                                     <span v-if="form.errors.is_visible" class="text-red-500 text-sm mt-1 block">{{ form.errors.is_visible }}</span>    
                                 </fieldset>
+                                <h2 v-if="isEditing && props.item.sort==0">
+                                    排序未更新
+                                </h2>
 	                            <div class="flex gap-3 my-6 mx-2 justify-end">
 	                            	<!--原本是mt-6，新增跟取消上下變很大，取消沒上下置中-->
 	                                <button 
@@ -178,7 +181,7 @@ const handleFormError = (errors) => {
 	                                    {{ isEditing ? '更新' : '新增' }}
 	                                </button>
 	                                <Link 
-	                                    :href="route('productManage.category.index')"
+	                                    :href="route('productManage.item.index', { categoryId: form.category_id })"
 	                                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
 	                                >
 	                                    取消

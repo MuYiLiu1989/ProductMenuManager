@@ -14,9 +14,22 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $categories = ProductCategory::orderBy('sort')->pluck('name','id')->toArray();
+
+        $categoryId = $request->query('categoryId'); // 取出 GET 參數
+        
+        if ($categoryId) {
+            $items = ProductItem::where('category_id', $categoryId)->orderBy('sort')->get();
+        }else{
+        	$items = [];
+        }
+
+        return Inertia::render('ProductManage/ItemIndex', [
+            'categories' => $categories,
+            'items' => $items,
+        ]);
     }
 
     /**
@@ -25,9 +38,6 @@ class ItemController extends Controller
     public function create()
     {
         $categories = ProductCategory::orderBy('sort')->get();
-        
-        // 調試：檢查資料
-        // dd($categories); // 取消註解來查看資料
         
         return Inertia::render('ProductManage/ItemForm', [
             'categories' => $categories
@@ -59,14 +69,14 @@ class ItemController extends Controller
         	'category_id' => $request->category_id,
         	'price' => $request->price,
         	'stock' => $request->stock,
-            'sort' => (ProductCategory::max('sort') ?? 0) + 1,
+            'sort' => (ProductItem::where("category_id",$request->category_id)->max('sort') ?? 0) + 1,
         ];
 
         ProductItem::create($data);
     
         // 儲存成功，使用 session flash 來傳遞成功訊息
         return redirect()->route('productManage.item.create')
-            ->with('success', '種類已成功建立！');
+            ->with('success', '項目已成功建立！');
     }
 
     /**
@@ -82,7 +92,12 @@ class ItemController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $item = ProductItem::findOrFail($id);
+        $categories = ProductCategory::orderBy('sort')->get();
+        return Inertia::render('ProductManage/ItemForm', [
+            'item' => $item,
+            'categories' => $categories
+        ]);
     }
 
     /**
@@ -90,7 +105,37 @@ class ItemController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $item = ProductItem::findOrFail($id);
+        $validator = Validator::make($request->all(), [
+        	'is_visible' => 'required',
+            'name' => 'required|string|unique:product_items,name,' . $id, //為了不要檢查是否跟自己重複
+            'category_id' => 'required',
+            'price' => 'required',
+            'stock' => 'required',
+        ]);
+    
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $item->update([
+        	'is_visible' => $request->is_visible,
+            'name' => $request->name,
+            'category_id' => $request->category_id,
+            'price' => $request->price,
+            'stock' => $request->stock,
+        ]);
+
+        if ($item->sort==0){
+            $item->update([
+                'sort' => (ProductItem::where("category_id",$request->category_id)->max('sort') ?? 0) + 1,
+            ]);
+        }
+
+        return redirect()->route('productManage.item.edit', $id)
+            ->with('success', '項目已成功更新！');
     }
 
     /**
@@ -98,6 +143,46 @@ class ItemController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $item = ProductItem::findOrFail($id);
+            $item->delete();
+            return redirect()->route('productManage.item.index')
+                ->with('success', '項目已成功刪除！');
+        } catch (\Exception $e) {
+            return redirect()->route('productManage.item.index')
+                ->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function ajax(Request $request)
+    {
+        // 驗證請求資料是陣列格式
+        $bigRequest['sortChangeNum'] = $request->all();
+        $validator = Validator::make($bigRequest, [
+        	'sortChangeNum' => 'required|array|min:1',
+            'sortChangeNum.*.id' => 'required|exists:product_items,id',
+            'sortChangeNum.*.sort' => 'required|integer',
+        ],[
+        	'sortChangeNum.required' => "至少須挪動一次！"
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()->all(),
+            ]);
+        }
+    
+        // 處理陣列資料
+        $data = $request->all();
+        
+        foreach ($data as $item) {
+            ProductItem::where('id', $item['id'])->update(['sort' => $item['sort']]);
+        }
+    
+        return response()->json([
+            'success' => true,
+            'message' => '項目順序已成功更新！',
+        ]);
     }
 }

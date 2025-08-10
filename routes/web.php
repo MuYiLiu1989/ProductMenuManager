@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('category', CategoryController::class, ['as' => 'productManage']);
         Route::post('category/ajax', [CategoryController::class, 'ajax'])->name('productManage.category.ajax');
         Route::resource('item', ItemController::class, ['as' => 'productManage']);
+        Route::post('item/ajax', [ItemController::class, 'ajax'])->name('productManage.item.ajax');
     });
 });
 
