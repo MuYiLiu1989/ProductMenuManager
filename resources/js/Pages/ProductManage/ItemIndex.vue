@@ -11,7 +11,9 @@
                         <!-- 頁面標題和控制按鈕 -->
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">項目管理</h2>
-                            <h2 class="text-2xl font-bold text-gray-800">種類：{{categories[selectedId]}}</h2>
+                            <div class="hidden lg:block">
+                            	<h2 class="text-2xl font-bold text-gray-800">種類：{{categories[selectedId]}}</h2>
+                        	</div>
                                 <div class="my-2 flex items-center gap-4">
 								  <label class="text-2xl font-bold text-gray-800 whitespace-nowrap">類別：</label>
 								  <select  
@@ -36,7 +38,7 @@
                                     <span>啟用拖曳</span>
                                 </button>
                                 <button 
-                                    @click="savetoAjax" 
+                                    @click="savesort" 
                                     :disabled="!isDraggable"
                                     class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow-sm transition-colors duration-200 flex items-center space-x-2"
                                 >
@@ -75,9 +77,11 @@
                                         <th class="px-6 py-4 text-left text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
                                             價格
                                         </th>
-                                        <th class="px-6 py-4 text-left text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
-                                            庫存
-                                        </th>
+                                        <div class="hidden lg:block">
+                                        	<th class="px-6 py-4 text-left text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
+                                            庫存管理
+                                        	</th>
+                                    	</div>
                                         <th class="w-20 px-6 py-4 text-center text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
                                             修改
                                         </th>
@@ -98,13 +102,15 @@
 		                                    <tr class="hover:bg-gray-50 transition-colors duration-200" :style="{ cursor: isDraggable ? 'move' : 'default' }">
                                                 <td class="w-16 px-6 py-4 whitespace-nowrap text-lg font-medium text-gray-900">
 		                                            <!-- 勾號 -->
-		                                        <button v-if="element.is_visible" @click="element.is_visible=!element.is_visible">
+		                                        <button v-if="element.is_visible" @click="switchVisible(element.id)" :disabled="isDraggable" class="disabled:opacity-50 disabled:cursor-not-allowed
+		                                        px-2">
 													<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
 													  <polyline points="20 6 9 17 4 12" />
 													</svg>
 												</button>
 													<!-- 叉號 -->
-												<button v-if="!element.is_visible" @click="element.is_visible=!element.is_visible">
+												<button v-if="!element.is_visible" @click="switchVisible(element.id)" :disabled="isDraggable" class="disabled:opacity-50 disabled:cursor-not-allowed
+												px-2">
 													<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
 													  <line x1="18" y1="6" x2="6" y2="18" />
 													  <line x1="6" y1="6" x2="18" y2="18" />
@@ -120,9 +126,19 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
 		                                            {{ element.price }}
 		                                        </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
-		                                            {{ element.stock }}
-		                                        </td>
+		                                        <div class="hidden lg:block">
+	                                                <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
+	                                                    <label class="text-lg font-semibold text-gray-800 mb-2">庫存增減：</label>
+	                                                    <input 
+	                                                        type="number" 
+	                                                        :ref="el => stockInputs[index] = el"
+	                                                        class="w-32 px-3 py-2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+	                                                        placeholder="請輸入數字" 
+	                                                    />
+	                                                    <button class="mx-2 bg-green-500 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded inline-block transition-colors duration-200" @click="updateStock(element.id,index)" :disabled="isDraggable">更新</button>
+			                                            目前庫存：{{ element.stock }}
+			                                        </td>
+		                                    	</div>
 		                                        <td class="w-20 px-6 py-4 whitespace-nowrap text-lg text-gray-900 text-center">
                                                     <button @click="editItem(element.id)" :disabled="isDraggable" class="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded inline-block transition-colors duration-200">
 		                                            修改
@@ -167,59 +183,115 @@ const props = defineProps({
         type: Object,
         default: []
     },
+    //經後端變成鍵值對應
     items: {
         type: Array,
         default: []
     }
+    //經後端篩選過的items array
 });
+// localItems是本地創建的響應式副本from props.items用於拖曳
 
 const params = new URLSearchParams(window.location.search);
-var categoryId = params.get('categoryId')??'';
+var categoryId = params.get('categoryId')??'';//請選擇類別的value是''
 
-const newOrder = ref([]);
 const selectedId = ref(categoryId);
+const localItems = ref([...props.items]); //與draggable的變化同步(v-model)
+//ref裡的內容之後更新路由(updated)都不會用到(select選單一換類別馬上show出該類別項目，靠監聽)，除非按取消回來這裡或第一次進來這(mounted)
 
-// 創建本地響應式副本用於拖曳
-const localItems = ref([...props.items]);
-//之後更新路由都不會動到這裡
+const newOrder = ref([]); //如果沒拖曳半次就送出會送出空串列
 
 const onChange = () => {
   router.get(route('productManage.item.index'), { categoryId: selectedId.value }, {
-    preserveScroll: true,
-    preserveState: true,
+    preserveScroll: true, //是否滾動
+    preserveState: true, //響應式變數是否留存
     replace: true, // 可選，避免新增歷史紀錄
   })
 }
-	
-// 監聽 props.categories 變化並同步到本地副本
+// 用get參數控制後端所傳的資料(只傳get參數標明的類別資料)	
+// 監聽 props.items 變化並同步到本地副本localItems
 watch(() => props.items, (newItems) => {
   localItems.value = [...newItems];
 }, { deep: true });
-//如果不用監聽改用computed的get and set，這樣會害items變成唯讀，不然就要撰寫set內容
+//如果不用監聽改用computed的get and set，這樣會害localItems變成唯讀(因為拖曳順序會改變localItems裡array的順序)，不然就要撰寫set內容
 
 function editItem(itemId) {
     router.get(route('productManage.item.edit', itemId));
 }
 
+function switchVisible(itemId) {
+    axios.post(route('productManage.item.ajax'), {
+        id: itemId},{params:{action:'switchVisible'}})
+    .then(response => {
+        if (response.data.success) {
+            Swal.fire({
+                title: '成功！',
+                text: response.data.message,
+                icon: 'success',
+                confirmButtonText: '確定'
+            });
+            //locat ion.href = location.href;
+            onChange();
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        Swal.fire({
+            title: '失敗！',
+            text: '請稍後再試',
+            icon: 'error',
+            confirmButtonText: '確定'
+        });
+    })
+}
+
+const stockInputs = ref([]) // 存放所有 input DOM
+
+function updateStock(itemId,index) {
+    axios.post(route('productManage.item.ajax'), {
+        id: itemId,
+        stock: stockInputs.value[index]?.value},{params:{action:'updateStock'}})
+    .then(response => {
+        if (response.data.success) {
+            Swal.fire({
+                title: '成功！',
+                text: response.data.message,
+                icon: 'success',
+                confirmButtonText: '確定'
+            });
+            onChange();
+        }else{
+        	Swal.fire({
+	            title: '失敗！',
+	            text: response.data.errors,
+	            icon: 'error',
+	            confirmButtonText: '確定'
+        });
+        }
+    })
+}
+
 // 是否可拖曳
 const isDraggable = ref(false);
 
-// 拖曳完成後儲存新順序
+// 每拖曳完成一次後儲存新順序，等到儲存順序isDraggable=false之後送ajax到後端
 function saveNewOrder() {
   // localItems.value 已經是最新順序
   newOrder.value = [...localItems.value].map((item, index) => ({
     id: item.id,
-    sort: index + 1, // 或 index
+    sort: index + 1, 
   }))
   console.log('儲存的新順序:', newOrder.value)
 }
 
-function savetoAjax() {
-    isDraggable.value = false;
-  // 你可以在這裡發送到後端，例如 axios.post('/api/update-order', newOrder)
-  axios.post(route('productManage.item.ajax'), newOrder.value)
+function savesort() {
+  isDraggable.value = false;
+  axios.post(route('productManage.item.ajax'), newOrder.value,{
+  	params:{action:'sort'}
+  })
     .then(response => {
       if (response.data.success) {
+      	newOrder.value.length = 0;
         Swal.fire({
           title: '成功！',
           text: response.data.message,
@@ -237,7 +309,7 @@ function savetoAjax() {
     })
 }
 
-// 刪除種類的方法
+// 刪除項目的方法
 function deleteItem(itemId) {
     Swal.fire({
         title: '確定要刪除嗎？',

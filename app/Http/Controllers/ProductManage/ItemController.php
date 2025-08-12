@@ -156,33 +156,87 @@ class ItemController extends Controller
 
     public function ajax(Request $request)
     {
-        // 驗證請求資料是陣列格式
-        $bigRequest['sortChangeNum'] = $request->all();
-        $validator = Validator::make($bigRequest, [
-        	'sortChangeNum' => 'required|array|min:1',
-            'sortChangeNum.*.id' => 'required|exists:product_items,id',
-            'sortChangeNum.*.sort' => 'required|integer',
-        ],[
-        	'sortChangeNum.required' => "至少須挪動一次！"
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()->all(),
-            ]);
-        }
-    
-        // 處理陣列資料
-        $data = $request->all();
+    	$action = $request->query('action'); // 取出 GET 參數
+    	switch ($action) {
+    		case 'sort':
+    			// 驗證請求資料是陣列格式
+    			$orginRrequest = $request->all();
+    			array_pop($orginRrequest);
+        		$bigRequest['sortChangeNum'] = $orginRrequest;
+		        $validator = Validator::make($bigRequest, [
+		        	'sortChangeNum' => 'required|array|min:1',
+		            'sortChangeNum.*.id' => 'required|exists:product_items,id',
+		            'sortChangeNum.*.sort' => 'required|integer',
+		        ],[
+		        	'sortChangeNum.required' => "至少須挪動一次！"
+		        ]);
+		    
+		        if ($validator->fails()) {
+		            return response()->json([
+		                'success' => false,
+		                'errors' => $validator->errors()->all(),
+		            ]);
+		        }
+		    
+		        // 處理陣列資料
+		        $rawdata = $validator->validated();
+		        $data = $rawdata["sortChangeNum"];
+		        
+		        foreach ($data as $item) {
+		            ProductItem::where('id', $item['id'])->update(['sort' => $item['sort']]);
+		        }
+		    
+		        return response()->json([
+		            'success' => true,
+		            'message' => '項目順序已成功更新！',
+		        ]);
+    			break;
+    		case 'switchVisible':   
+    			$productItem = ProductItem::findOrFail($request->id);
+    			$productItem->update([
+    				'is_visible' => $productItem->is_visible == 1 ? 0 : 1,
+    			]);
+                //以後來的為主
+                if ($productItem->is_visible == 1){
+    			return response()->json([
+    				'success' => true,
+    				'message' => '該項目已啟用！',
+    			]);
+                }else{
+                    return response()->json([
+                    'success' => true,
+                    'message' => '該項目已停用！',
+                ]);
+                }
+                break;
+    		case 'updateStock':
+                $validator = Validator::make($request->all(), [
+                    'stock' => 'required'
+                ],[
+                    'stock.required' => "數字不可空白！"
+                ]);
+                if ($validator->fails()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $validator->errors()->all(),
+                    ]);
+                }
+    			$productItem = ProductItem::findOrFail($request->id);
+    			$productItem->update([
+    				'stock' => $productItem->stock + $request->stock,
+    			]);
+    			return response()->json([
+    				'success' => true,
+    				'message' => "庫存已成功更新為{$productItem->stock}！",
+    			]);
+                break;
+    		default:
+    			return response()->json([
+                        'success' => false,
+                        'errors' => "沒選擇適當的action！",
+                    ]);
+    			break;
+    	}
         
-        foreach ($data as $item) {
-            ProductItem::where('id', $item['id'])->update(['sort' => $item['sort']]);
-        }
-    
-        return response()->json([
-            'success' => true,
-            'message' => '項目順序已成功更新！',
-        ]);
     }
 }
