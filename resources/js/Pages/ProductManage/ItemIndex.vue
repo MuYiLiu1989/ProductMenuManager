@@ -12,7 +12,7 @@
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">項目管理</h2>
                             <div class="hidden lg:block">
-                            	<h2 class="text-2xl font-bold text-gray-800">種類：{{categories[selectedId]}}</h2>
+                            	<h2 class="text-2xl font-bold text-gray-800">種類：{{categories.find(cat=>cat.id==selectedId)?.name}}</h2>
                         	</div>
                                 <div class="my-2 flex items-center gap-4">
 								  <label class="text-2xl font-bold text-gray-800 whitespace-nowrap">類別：</label>
@@ -22,7 +22,7 @@
                                     @change="onChange"
 								  >
 								    <option value="">請選擇類別</option>
-								    <option v-for="(name, id) in categories" :key="id" :value="id">{{ name }}</option>
+								    <option v-for="category in categories" :key="category" :value="category.id">{{ category.name }}</option>
 								  </select>    
 								</div>
 
@@ -180,7 +180,7 @@ import { ref, computed, watch } from 'vue';
 // 定義 props
 const props = defineProps({
     categories: {
-        type: Object,
+        type: Array,
         default: []
     },
     //經後端變成鍵值對應

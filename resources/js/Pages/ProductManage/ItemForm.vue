@@ -134,7 +134,8 @@ const handleFormError = (errors) => {
                                 <fieldset class="mb-4">
                                     <legend class="text-lg font-semibold text-gray-800 mb-2">價格：</legend>
                                     <input 
-                                        type="number" 
+                                        type="number"
+                                        min='0' step='1' 
                                         class="w-full px-3 py-2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                         v-model="form.price" 
                                         placeholder="請輸入價格" 
@@ -145,6 +146,7 @@ const handleFormError = (errors) => {
                                     <legend class="text-lg font-semibold text-gray-800 mb-2">庫存量：</legend>
                                     <input 
                                         type="number" 
+                                        min='0' step='1'
                                         class="w-full px-3 py-2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                         v-model="form.stock" 
                                         placeholder="請輸入庫存" 

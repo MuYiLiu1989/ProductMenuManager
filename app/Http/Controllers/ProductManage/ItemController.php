@@ -16,7 +16,7 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        $categories = ProductCategory::orderBy('sort')->pluck('name','id')->toArray();
+        $categories = ProductCategory::orderBy('sort')->get(['id', 'name'])->toArray();
 
         $categoryId = $request->query('categoryId'); // 取出 GET 參數
         

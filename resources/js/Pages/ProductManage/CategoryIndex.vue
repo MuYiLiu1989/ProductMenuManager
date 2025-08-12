@@ -10,8 +10,8 @@
                     <div class="p-6">
                         <!-- 頁面標題和控制按鈕 -->
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-bold text-gray-800">種類管理</h2>
-                            <div class="flex space-x-3">
+                            <h2 class="text-3xl font-bold text-gray-800">種類管理</h2>
+                            <div class="flex space-x-3 text-3xl">
                                 <button 
                                     @click="isDraggable = true" 
                                     :disabled="isDraggable"
@@ -50,16 +50,16 @@
                             <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm table-auto">
                                 <thead class="bg-gray-100">
                                     <tr>
-                                        <th class="w-16 px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
+                                        <th class="w-16 px-6 py-4 text-left text-2xl font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
                                             ID
                                         </th>
-                                        <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
+                                        <th class="px-6 py-4 text-left text-2xl font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
                                             種類名
                                         </th>
-                                        <th class="w-20 px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
+                                        <th class="w-20 px-6 py-4 text-center text-2xl font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
                                             修改
                                         </th>
-                                        <th class="w-20 px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
+                                        <th class="w-20 px-6 py-4 text-center text-2xl font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
                                             刪除
                                         </th>
                                     </tr>
@@ -74,18 +74,18 @@
 								    >
 									    <template #item="{ element, index }">
 		                                    <tr class="hover:bg-gray-50 transition-colors duration-200" :style="{ cursor: isDraggable ? 'move' : 'default' }">
-		                                        <td class="w-16 px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+		                                        <td class="w-16 px-6 py-4 whitespace-nowrap text-2xl font-medium text-gray-900">
 		                                            {{ element.id }}
 		                                        </td>
-		                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+		                                        <td class="px-6 py-4 whitespace-nowrap text-2xl text-gray-900">
 		                                            {{ element.name }}
 		                                        </td>
-		                                        <td class="w-20 px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+		                                        <td class="w-20 px-6 py-4 whitespace-nowrap text-2xl text-gray-900 text-center">
                                                     <button @click="editCategory(element.id)" :disabled="isDraggable" class="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded inline-block transition-colors duration-200">
 		                                            修改
                                                     </button>
 		                                        </td>
-		                                        <td class="w-20 px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+		                                        <td class="w-20 px-6 py-4 whitespace-nowrap text-2xl text-gray-900 text-center">
                                                     <button @click="deleteCategory(element.id)" :disabled="isDraggable" class="bg-red-500 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded inline-block transition-colors duration-200">
 		                                            刪除
                                                     </button>
