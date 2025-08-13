@@ -13,6 +13,7 @@
                             <h2 class="text-2xl font-bold text-gray-800">項目管理</h2>
                             <div class="hidden lg:block">
                             	<h2 class="text-2xl font-bold text-gray-800">種類：{{categories.find(cat=>cat.id==selectedId)?.name}}</h2>
+                            	<!--直接用key對value的形式順序會跑掉-->
                         	</div>
                                 <div class="my-2 flex items-center gap-4">
 								  <label class="text-2xl font-bold text-gray-800 whitespace-nowrap">類別：</label>
@@ -201,6 +202,7 @@ const localItems = ref([...props.items]); //與draggable的變化同步(v-model)
 
 const newOrder = ref([]); //如果沒拖曳半次就送出會送出空串列
 
+//重新進一次controller再跑一次(可能多帶個get參數)
 const onChange = () => {
   router.get(route('productManage.item.index'), { categoryId: selectedId.value }, {
     preserveScroll: true, //是否滾動
@@ -215,68 +217,12 @@ watch(() => props.items, (newItems) => {
 }, { deep: true });
 //如果不用監聽改用computed的get and set，這樣會害localItems變成唯讀(因為拖曳順序會改變localItems裡array的順序)，不然就要撰寫set內容
 
-function editItem(itemId) {
-    router.get(route('productManage.item.edit', itemId));
-}
-
-function switchVisible(itemId) {
-    axios.post(route('productManage.item.ajax'), {
-        id: itemId},{params:{action:'switchVisible'}})
-    .then(response => {
-        if (response.data.success) {
-            Swal.fire({
-                title: '成功！',
-                text: response.data.message,
-                icon: 'success',
-                confirmButtonText: '確定'
-            });
-            //locat ion.href = location.href;
-            onChange();
-        }
-    })
-    .catch(error => {
-        console.error(error);
-        Swal.fire({
-            title: '失敗！',
-            text: '請稍後再試',
-            icon: 'error',
-            confirmButtonText: '確定'
-        });
-    })
-}
-
-const stockInputs = ref([]) // 存放所有 input DOM
-
-function updateStock(itemId,index) {
-    axios.post(route('productManage.item.ajax'), {
-        id: itemId,
-        stock: stockInputs.value[index]?.value},{params:{action:'updateStock'}})
-    .then(response => {
-        if (response.data.success) {
-            Swal.fire({
-                title: '成功！',
-                text: response.data.message,
-                icon: 'success',
-                confirmButtonText: '確定'
-            });
-            onChange();
-        }else{
-        	Swal.fire({
-	            title: '失敗！',
-	            text: response.data.errors,
-	            icon: 'error',
-	            confirmButtonText: '確定'
-        });
-        }
-    })
-}
-
 // 是否可拖曳
 const isDraggable = ref(false);
 
-// 每拖曳完成一次後儲存新順序，等到儲存順序isDraggable=false之後送ajax到後端
+// 每拖曳完成一次後儲存新順序，按結束按鈕後isDraggable=false，儲存最終順序送ajax到後端
 function saveNewOrder() {
-  // localItems.value 已經是最新順序
+  // localItems.value 已經是最新順序，因為v-model
   newOrder.value = [...localItems.value].map((item, index) => ({
     id: item.id,
     sort: index + 1, 
@@ -285,6 +231,7 @@ function saveNewOrder() {
 }
 
 function savesort() {
+  //結束拖曳，順序儲存進資料庫
   isDraggable.value = false;
   axios.post(route('productManage.item.ajax'), newOrder.value,{
   	params:{action:'sort'}
@@ -306,6 +253,61 @@ function savesort() {
           confirmButtonText: '確定'
       	})
       }
+    })
+}
+
+//修改進表單修改
+function editItem(itemId) {
+    router.get(route('productManage.item.edit', itemId));
+}
+
+//啟用與否開關
+function switchVisible(itemId) {
+    axios.post(route('productManage.item.ajax'), {id: itemId},{params:{action:'switchVisible'}})
+    .then(response => {
+        if (response.data.success) {
+            Swal.fire({
+                title: '成功！',
+                text: response.data.message,
+                icon: 'success',
+                confirmButtonText: '確定'
+            });
+            //location.href = location.href; 等網頁刷新太慢了
+            onChange(); //自動刷新重新讀資料庫
+        } else {
+        	Swal.fire({
+	            title: '失敗！',
+	            text: response.data.errors,
+	            icon: 'error',
+	            confirmButtonText: '確定'
+	        });
+        }
+    })  
+}
+
+const stockInputs = ref([]) // 存放所有 input DOM
+//增減庫存量
+function updateStock(itemId,index) {
+    axios.post(route('productManage.item.ajax'), {
+        id: itemId,
+        stock: stockInputs.value[index]?.value},{params:{action:'updateStock'}})
+    .then(response => {
+        if (response.data.success) {
+            Swal.fire({
+                title: '成功！',
+                text: response.data.message,
+                icon: 'success',
+                confirmButtonText: '確定'
+            });
+            onChange();
+        }else{
+        	Swal.fire({
+	            title: '失敗！',
+	            text: response.data.errors,
+	            icon: 'error',
+	            confirmButtonText: '確定'
+        });
+        }
     })
 }
 

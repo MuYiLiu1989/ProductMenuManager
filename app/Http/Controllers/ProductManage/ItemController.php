@@ -161,7 +161,7 @@ class ItemController extends Controller
     		case 'sort':
     			// 驗證請求資料是陣列格式
     			$orginRrequest = $request->all();
-    			array_pop($orginRrequest);
+    			array_pop($orginRrequest); //去掉action=sort這個
         		$bigRequest['sortChangeNum'] = $orginRrequest;
 		        $validator = Validator::make($bigRequest, [
 		        	'sortChangeNum' => 'required|array|min:1',
@@ -191,24 +191,28 @@ class ItemController extends Controller
 		            'message' => '項目順序已成功更新！',
 		        ]);
     			break;
-    		case 'switchVisible':   
-    			$productItem = ProductItem::findOrFail($request->id);
-    			$productItem->update([
-    				'is_visible' => $productItem->is_visible == 1 ? 0 : 1,
-    			]);
-                //以後來的為主
-                if ($productItem->is_visible == 1){
-    			return response()->json([
-    				'success' => true,
-    				'message' => '該項目已啟用！',
-    			]);
-                }else{
-                    return response()->json([
-                    'success' => true,
-                    'message' => '該項目已停用！',
-                ]);
-                }
-                break;
+    		case 'switchVisible':
+    			try{
+	    			$productItem = ProductItem::findOrFail($request->id);
+	    			$productItem->update([
+	    				'is_visible' => $productItem->is_visible == 1 ? 0 : 1,
+	    			]);
+	                //以後來的為主
+	                if ($productItem->is_visible == 1){
+	    				return response()->json([
+	    					'success' => true,
+	    					'message' => '該項目已啟用！',
+	    				]);} else {
+	                    return response()->json([
+	                    	'success' => true,
+	                    	'message' => '該項目已停用！',
+	                	]);}
+            	} catch (\Exception $e) {
+            		return response()->json([
+                       	'success' => false,
+                       	'errors' => $e->getMessage(),
+                    ]);}
+                	break;
     		case 'updateStock':
                 $validator = Validator::make($request->all(), [
                     'stock' => 'required'
