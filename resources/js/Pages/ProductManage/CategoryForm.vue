@@ -23,8 +23,9 @@ const form = useForm({
 })
 
 
-const Pages = usePage()
+
 //從onMounted改成onUpdated就成功了
+/*
 onUpdated(() => {
 	console.log("Updated!");
     const flashSuccess = Pages.props.flash?.success;
@@ -41,12 +42,16 @@ onUpdated(() => {
         }
     }
 });
+*/
 
 // 處理表單提交
 const submitForm = () => {
     if (isEditing.value) {
         // 編輯模式：使用 PUT 方法更新
         form.put(`/productManage/category/${props.category.id}`, {
+        	onSuccess: () => {
+        		handleFormSuccess();
+        	},
             onError: (errors) => {
                 handleFormError(errors);
             }
@@ -54,12 +59,28 @@ const submitForm = () => {
     } else {
         // 新增模式：使用 POST 方法
         form.post('/productManage/category', {
+        	onSuccess: () => {
+        		handleFormSuccess();
+        		form.reset();
+        	},
             onError: (errors) => {
                 handleFormError(errors);
             }
         });
     }
 };
+
+// 處理表單成功
+const handleFormSuccess = () => {
+	const Pages = usePage();
+	const flashSuccess = Pages.props.flash?.success;
+	Swal.fire({
+        title: '成功！',
+        text: flashSuccess,
+        icon: 'success',
+        confirmButtonText: '確定'
+    });
+}
 
 // 處理表單錯誤
 const handleFormError = (errors) => {

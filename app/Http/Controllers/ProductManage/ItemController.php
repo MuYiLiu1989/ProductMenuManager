@@ -145,12 +145,11 @@ class ItemController extends Controller
     {
         try {
             $item = ProductItem::findOrFail($id);
+            $categoryId = $item->category_id;
             $item->delete();
-            return redirect()->route('productManage.item.index')
-                ->with('success', '項目已成功刪除！');
+            return redirect()->route('productManage.item.index', [ 'categoryId' => $categoryId ])->with('success', '項目已成功刪除！');
         } catch (\Exception $e) {
-            return redirect()->route('productManage.item.index')
-                ->withErrors(['error' => $e->getMessage()]);
+            return redirect()->route('productManage.item.index', [ 'categoryId' => $categoryId ])->withErrors(['error' => $e->getMessage()]);
         }
     }
 

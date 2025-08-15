@@ -86,7 +86,7 @@
                                                     </button>
 		                                        </td>
 		                                        <td class="w-20 px-6 py-4 whitespace-nowrap text-2xl text-gray-900 text-center">
-                                                    <button @click="deleteCategory(element.id)" :disabled="isDraggable" class="bg-red-500 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded inline-block transition-colors duration-200">
+                                                    <button @click="deleteCategory(element.id,element.name)" :disabled="isDraggable" class="bg-red-500 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded inline-block transition-colors duration-200">
 		                                            刪除
                                                     </button>
 		                                        </td>
@@ -179,9 +179,9 @@ function savetoAjax() {
 }
 
 // 刪除種類的方法
-function deleteCategory(categoryId) {
+function deleteCategory(categoryId,categoryName) {
     Swal.fire({
-        title: '確定要刪除嗎？',
+        title: '確定要刪除'+categoryName+'嗎？',
         text: '此操作無法復原！',
         icon: 'warning',
         showCancelButton: true,
