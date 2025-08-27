@@ -42,7 +42,9 @@ class CategoryController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:product_categories,name',
         ]);
-    
+
+        $data = $validator->validate();
+    	/*
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
@@ -53,6 +55,8 @@ class CategoryController extends Controller
         	'name' => $request->name,
             'sort' => (ProductCategory::max('sort') ?? 0) + 1,
         ];
+		*/
+        $data['sort'] = (ProductCategory::max('sort') ?? 0) + 1;
 
         ProductCategory::create($data);
     
@@ -94,7 +98,9 @@ class CategoryController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:product_categories,name,' . $id,
         ]);
-    
+
+        $data = $validator->validate();
+    	/*
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
@@ -104,6 +110,8 @@ class CategoryController extends Controller
         $category->update([
             'name' => $request->name,
         ]);
+        */
+        $category->update($data);
     
         return redirect()->route('productManage.category.edit', $id)
             ->with('success', '種類已成功更新！');

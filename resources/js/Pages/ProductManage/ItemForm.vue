@@ -57,8 +57,8 @@ const submitForm = () => {
     if (isEditing.value) {
         // 編輯模式：使用 PUT 方法更新
         form.put(`/productManage/item/${props.item.id}`, {
-        	onSuccess: () => {
-        		handleFormSuccess();
+        	onSuccess: (page) => {
+        		handleFormSuccess(page);
         	},
             onError: (errors) => {
                 handleFormError(errors);
@@ -67,8 +67,8 @@ const submitForm = () => {
     } else {
         // 新增模式：使用 POST 方法
         form.post('/productManage/item', {
-        	onSuccess: () => {
-        		handleFormSuccess();
+        	onSuccess: (page) => {
+        		handleFormSuccess(page);
         		form.reset();
         	},
             onError: (errors) => {
@@ -79,9 +79,9 @@ const submitForm = () => {
 };
 
 // 處理表單成功
-const handleFormSuccess = () => {
-	const Pages = usePage();
-	const flashSuccess = Pages.props.flash?.success;
+const handleFormSuccess = (page) => {
+	//const Pages = usePage();
+	const flashSuccess = page.props.flash?.success;
 	Swal.fire({
         title: '成功！',
         text: flashSuccess,

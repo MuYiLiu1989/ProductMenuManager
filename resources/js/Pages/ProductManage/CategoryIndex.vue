@@ -94,7 +94,7 @@
 		                                </template>
                                         <template #footer v-if="localCategories.length === 0">
                                             <tr>
-                                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                                <td colspan="4" class="px-6 py-8 text-center text-xl text-gray-500">
                                                     目前沒有任何種類資料
                                                 </td>
                                             </tr>

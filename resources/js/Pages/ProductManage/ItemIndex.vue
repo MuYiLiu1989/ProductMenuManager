@@ -75,7 +75,7 @@
                                         <th class="px-6 py-4 text-left text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
                                             項目名
                                         </th>
-                                        <th class="px-6 py-4 text-left text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
+                                        <th class="px-6 py-4 text-left text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300 text-nowrap">
                                             價格
                                         </th>
                                         <div class="hidden lg:block">
@@ -83,10 +83,10 @@
                                             庫存管理
                                         	</th>
                                     	</div>
-                                        <th class="w-20 px-6 py-4 text-center text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
+                                        <th class="px-6 py-4 text-center text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
                                             修改
                                         </th>
-                                        <th class="w-20 px-6 py-4 text-center text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
+                                        <th class="px-6 py-4 text-center text-lg font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300">
                                             刪除
                                         </th>
                                     </tr>
@@ -103,14 +103,14 @@
 		                                    <tr class="hover:bg-gray-50 transition-colors duration-200" :style="{ cursor: isDraggable ? 'move' : 'default' }">
                                                 <td class="w-16 px-6 py-4 whitespace-nowrap text-lg font-medium text-gray-900">
 		                                            <!-- 勾號 -->
-		                                        <button v-if="element.is_visible" @click="switchVisible(element.id)" :disabled="isDraggable" class="disabled:opacity-50 disabled:cursor-not-allowed
+		                                        <button v-if="element.is_visible" @click="switchVisible(element)" :disabled="isDraggable" class="disabled:opacity-50 disabled:cursor-not-allowed
 		                                        px-2">
 													<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
 													  <polyline points="20 6 9 17 4 12" />
 													</svg>
 												</button>
 													<!-- 叉號 -->
-												<button v-if="!element.is_visible" @click="switchVisible(element.id)" :disabled="isDraggable" class="disabled:opacity-50 disabled:cursor-not-allowed
+												<button v-if="!element.is_visible" @click="switchVisible(element)" :disabled="isDraggable" class="disabled:opacity-50 disabled:cursor-not-allowed
 												px-2">
 													<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
 													  <line x1="18" y1="6" x2="6" y2="18" />
@@ -124,7 +124,7 @@
 		                                        <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
 		                                            {{ element.name }}
 		                                        </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-900 text-nowrap">
 		                                            {{ element.price }}
 		                                        </td>
 		                                        <div class="hidden lg:block">
@@ -140,12 +140,12 @@
 			                                            目前庫存：{{ element.stock }}
 			                                        </td>
 		                                    	</div>
-		                                        <td class="w-20 px-6 py-4 whitespace-nowrap text-lg text-gray-900 text-center">
+		                                        <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-900 text-center">
                                                     <button @click="editItem(element.id)" :disabled="isDraggable" class="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded inline-block transition-colors duration-200">
 		                                            修改
                                                     </button>
 		                                        </td>
-		                                        <td class="w-20 px-6 py-4 whitespace-nowrap text-lg text-gray-900 text-center">
+		                                        <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-900 text-center">
                                                     <button @click="deleteItem(element.id,element.name)" :disabled="isDraggable" class="bg-red-500 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded inline-block transition-colors duration-200">
 		                                            刪除
                                                     </button>
@@ -154,7 +154,7 @@
 		                                </template>
                                         <template #footer v-if="localItems.length === 0">
                                             <tr>
-                                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                                <td colspan="7" class="px-6 py-8 text-center text-xl text-gray-500">
                                                     目前這個種類沒有資料
                                                 </td>
                                             </tr>
@@ -262,28 +262,21 @@ function editItem(itemId) {
 }
 
 //啟用與否開關
-function switchVisible(itemId) {
-    axios.post(route('productManage.item.ajax'), {id: itemId},{params:{action:'switchVisible'}})
-    .then(response => {
-        if (response.data.success) {
-            Swal.fire({
-                title: '成功！',
-                text: response.data.message,
-                icon: 'success',
-                confirmButtonText: '確定'
-            });
-            //location.href = location.href; 等網頁刷新太慢了
-            onChange(); //自動刷新重新讀資料庫
-        } else {
+async function switchVisible(element) {
+	try{
+   const response = await axios.post(route('productManage.item.ajax'), {id: element.id},{params:{action:'switchVisible'}});
+   
+   element.is_visible = response.data.is_visible;
+            
+        } catch (error){
         	Swal.fire({
 	            title: '失敗！',
-	            text: response.data.errors,
+	            text: error,
 	            icon: 'error',
 	            confirmButtonText: '確定'
 	        });
         }
-    })  
-}
+    }
 
 const stockInputs = ref([]) // 存放所有 input DOM
 //增減庫存量
@@ -327,6 +320,7 @@ function deleteItem(itemId,itemName) {
             router.delete(route('productManage.item.destroy', itemId), {
                 onSuccess: (page) => {
                     const successMessage = page.props.flash?.success;
+                    //const successMessage = page.props.flash?.error;
                     if (successMessage) {
                         Swal.fire({
                             title: '已刪除！',
@@ -337,13 +331,18 @@ function deleteItem(itemId,itemName) {
                     }
                 },
                 onError: (errors) => {
-                    const errorMessage = errors.error || '刪除失敗，請稍後再試。';
+                    const errorMessage = errors.error;
+                    const errorStatus = errors.status;
+                    //const errorMessage = errors.success;
+                if (errorMessage){
                     Swal.fire({
-                        title: '錯誤！',
+                        title: '錯誤！錯誤碼：'+ errorStatus,
                         text: errorMessage,
                         icon: 'error',
                         confirmButtonText: '確定'
                     });
+                }
+                
                 }
             });
         }

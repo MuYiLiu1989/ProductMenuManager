@@ -45,6 +45,12 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     productManage
                                 </NavLink>
+                                <NavLink
+                                    :href="route('productOrder')"
+                                    :active="route().current('productOrder')"
+                                >
+                                    productOrder
+                                </NavLink>
                             </div>
                         </div>
 
@@ -157,6 +163,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('productManage')"
                         >
                             productManage
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('productOrder')"
+                            :active="route().current('productOrder')"
+                        >
+                            productOrder
                         </ResponsiveNavLink>
                     </div>
 

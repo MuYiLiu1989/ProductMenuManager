@@ -56,7 +56,11 @@ class ItemController extends Controller
             'price' => 'required',
             'stock' => 'required',
         ]);
-    
+
+        $data = $validator->validate();
+
+        $data['sort'] = (ProductItem::where("category_id",$request->category_id)->max('sort') ?? 0) + 1;
+    	/*
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
@@ -71,6 +75,7 @@ class ItemController extends Controller
         	'stock' => $request->stock,
             'sort' => (ProductItem::where("category_id",$request->category_id)->max('sort') ?? 0) + 1,
         ];
+        */
 
         ProductItem::create($data);
     
@@ -113,7 +118,9 @@ class ItemController extends Controller
             'price' => 'required',
             'stock' => 'required',
         ]);
-    
+
+        $data = $validator->validate();
+    	/*
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
@@ -127,6 +134,8 @@ class ItemController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
         ]);
+		*/
+        $item->update($data);
 
         if ($item->sort==0){
             $item->update([
@@ -146,11 +155,13 @@ class ItemController extends Controller
         try {
             $item = ProductItem::findOrFail($id);
             $categoryId = $item->category_id;
+            //throw new \Exception("看受否會觸發onError？",123);
             $item->delete();
-            return redirect()->route('productManage.item.index', [ 'categoryId' => $categoryId ])->with('success', '項目已成功刪除！');
+            return redirect()->route('productManage.item.index', [ 'categoryId' => $categoryId ])->with(['success' => '項目已成功刪除！']); //[]記得加
         } catch (\Exception $e) {
-            return redirect()->route('productManage.item.index', [ 'categoryId' => $categoryId ])->withErrors(['error' => $e->getMessage()]);
+            return redirect()->route('productManage.item.index', [ 'categoryId' => $categoryId ])->withErrors(['error' => $e->getMessage(), 'status' => $e->getCode()]);
         }
+        //with跑onSuccess，withErrors跑onError
     }
 
     public function ajax(Request $request)
@@ -191,27 +202,17 @@ class ItemController extends Controller
 		        ]);
     			break;
     		case 'switchVisible':
-    			try{
-	    			$productItem = ProductItem::findOrFail($request->id);
-	    			$productItem->update([
-	    				'is_visible' => $productItem->is_visible == 1 ? 0 : 1,
-	    			]);
-	                //以後來的為主
-	                if ($productItem->is_visible == 1){
-	    				return response()->json([
-	    					'success' => true,
-	    					'message' => '該項目已啟用！',
-	    				]);} else {
-	                    return response()->json([
-	                    	'success' => true,
-	                    	'message' => '該項目已停用！',
-	                	]);}
-            	} catch (\Exception $e) {
-            		return response()->json([
-                       	'success' => false,
-                       	'errors' => $e->getMessage(),
-                    ]);}
-                	break;
+    			
+	    		$productItem = ProductItem::findOrFail($request->id);
+	    		$productItem->update([
+	    			'is_visible' => $productItem->is_visible == 1 ? 0 : 1,
+	    		]);
+	            
+                $productItem = ProductItem::findOrFail($request->id);
+
+                return response()->json(['is_visible' => $productItem->is_visible]);
+
+                break;
     		case 'updateStock':
                 $validator = Validator::make($request->all(), [
                     'stock' => 'required'

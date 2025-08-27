@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductManage\CategoryController;
 use App\Http\Controllers\ProductManage\ItemController;
 use Illuminate\Foundation\Application;
@@ -24,6 +25,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('category/ajax', [CategoryController::class, 'ajax'])->name('productManage.category.ajax');
         Route::resource('item', ItemController::class, ['as' => 'productManage']);
         Route::post('item/ajax', [ItemController::class, 'ajax'])->name('productManage.item.ajax');
+    });
+    Route::prefix('/productOrder')->group(function () {
+        Route::get('/', fn() => Inertia::render('ProductOrder'))->name('productOrder');
+        Route::get('menu', [OrderController::class, 'menu'])->name('productOrder.menu');
+        Route::match(['get','post'],'cart', [OrderController::class, 'cart'])->name('productOrder.cart');
+        Route::post('ajax', [OrderController::class, 'ajax'])->name('productOrder.ajax');
+        Route::get('orderlist', [OrderController::class, 'orderlist'])->name('productOrder.orderlist');
     });
 });
 
