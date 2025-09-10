@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductManage\CategoryController;
 use App\Http\Controllers\ProductManage\ItemController;
+use App\Http\Controllers\Api\ProductItemController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('/productOrder')->group(function () {
         Route::get('/', fn() => Inertia::render('ProductOrder'))->name('productOrder');
         Route::get('menu', [OrderController::class, 'menu'])->name('productOrder.menu');
+        Route::get('api',[ProductItemController::class, 'index'])->middleware('auth:sanctum')->name('productOrder.api');
         Route::match(['get','post'],'cart', [OrderController::class, 'cart'])->name('productOrder.cart');
         Route::post('ajax', [OrderController::class, 'ajax'])->name('productOrder.ajax');
         Route::get('orderlist', [OrderController::class, 'orderlist'])->name('productOrder.orderlist');

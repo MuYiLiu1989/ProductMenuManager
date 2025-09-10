@@ -15,18 +15,32 @@
                             	<h2 class="text-2xl font-bold text-gray-800">種類：{{categories.find(cat=>cat.id==selectedId)?.name}}</h2>
                             	<!--直接用key對value的形式順序會跑掉-->
                         	</div>
-                                <div class="my-2 flex items-center gap-4">
-								  <label class="text-2xl font-bold text-gray-800 whitespace-nowrap">類別：</label>
-								  <select  
-								    class="flex-1 px-2 py-1 text-white text-2xl border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-								    v-model="selectedId"
-                                    @change="onChange"
-								  >
-								    <option value="">請選擇類別</option>
-								    <option v-for="category in categories" :key="category" :value="category.id">{{ category.name }}</option>
-								  </select>    
-								</div>
-
+                            <div class="my-2 flex items-center gap-4">
+							  <label class="text-2xl font-bold text-gray-800 whitespace-nowrap">類別：</label>
+							  <select  
+							    class="flex-1 px-2 py-1 text-white text-2xl border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+							    v-model="selectedId"
+                                @change="onChange"
+							  >
+							    <option value="">請選擇類別</option>
+							    <option v-for="category in categories" :key="category" :value="category.id">{{ category.name }}</option>
+							  </select>    
+							</div>
+							<div class="flex space-x-3">
+                                <button 
+                                    class="px-4 py-2 bg-blue-500 hover:bg-blue-600  text-white font-medium rounded-lg shadow-sm transition-colors duration-200 flex items-center space-x-2"
+                                >
+                                    
+                                    <a :href="route('productOrder.api',{categoryId:selectedId})">api預覽</a>
+                                </button>
+                                <button 
+                                    class="px-4 py-2 bg-green-500 hover:bg-green-600  text-white font-medium rounded-lg shadow-sm transition-colors duration-200 flex items-center space-x-2"
+                                    @click="getToken"
+                                >
+                                    
+                                    <span>取得token</span>
+                                </button>
+                            </div>
                         </div>    
                         
                         <div class="overflow-x-auto">
@@ -182,6 +196,25 @@ const productOrder = ref([]) // 存放所有 input DOM
 function orderProducts(itemId,index) {
     router.post(route('productOrder.cart',{id:itemId}), {
         quantity: productOrder.value[index]?.value});
+}
+
+async function getToken(){
+	try{
+		const response = await axios.post('/api/login');
+		Swal.fire({
+            title: '成功！',
+            text: response.data.message,
+            icon: 'success',
+            confirmButtonText: '確定'
+        });
+	} catch (error){
+		Swal.fire({
+	        title: '失敗！',
+	        text: error,
+	        icon: 'error',
+	        confirmButtonText: '確定'
+	    });
+	}
 }
 
 </script>

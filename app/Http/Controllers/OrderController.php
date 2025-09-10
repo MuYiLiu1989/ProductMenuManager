@@ -18,7 +18,7 @@ class OrderController extends Controller
         $categoryId = $request->query('categoryId'); // 取出 GET 參數
         
         if ($categoryId) {
-            $items = ProductItem::where('is_visible',1)->where('category_id', $categoryId)->orderBy('sort')->get();
+            $items = ProductItem::where('is_visible',1)->where('category_id', $categoryId)->orderBy('sort')->get(); //唯有is_visible=1才會顯示在menu中
         }else{
         	$items = [];
         }
