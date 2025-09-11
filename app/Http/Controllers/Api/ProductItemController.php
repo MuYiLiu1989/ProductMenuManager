@@ -23,7 +23,7 @@ class ProductItemController extends Controller
         	$items = [];
         }
         return ProductItemResource::collection($items)->additional([
-    		'meta' => ['status' => 'success','requested_at' => now()]
+    		'meta' => ['status' => 'success','requested_at' => now(),'count' => $items->count()]
 		]);
     }
 

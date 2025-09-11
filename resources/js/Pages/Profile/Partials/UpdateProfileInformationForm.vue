@@ -19,6 +19,7 @@ const user = usePage().props.auth.user;
 const form = useForm({
     name: user.name,
     email: user.email,
+    is_product_manager: user.is_product_manager,
 });
 </script>
 
@@ -68,6 +69,21 @@ const form = useForm({
 
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
+
+            <div class="mt-4 flex items-center">
+			    <input
+			        id="isProductManager"
+			        type="checkbox"
+			        v-model="form.is_product_manager"
+			        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+			    />
+			    <label
+			        for="isProductManager"
+			        class="ml-2 block text-sm text-gray-700"
+			    >
+			        isProductManager
+			    </label>
+			</div>
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null">
                 <p class="mt-2 text-sm text-gray-800">

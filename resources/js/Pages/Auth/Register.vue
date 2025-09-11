@@ -11,6 +11,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    isProductManager: false,
 });
 
 const submit = () => {
@@ -91,6 +92,22 @@ const submit = () => {
                     :message="form.errors.password_confirmation"
                 />
             </div>
+
+            <div class="mt-4 flex items-center">
+			    <input
+			        id="isProductManager"
+			        type="checkbox"
+			        v-model="form.isProductManager"
+			        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+			    />
+			    <label
+			        for="isProductManager"
+			        class="ml-2 block text-sm text-gray-700"
+			    >
+			        isProductManager
+			    </label>
+			</div>
+			<InputError class="mt-2" :message="form.errors.isProductManager" />
 
             <div class="mt-4 flex items-center justify-end">
                 <Link

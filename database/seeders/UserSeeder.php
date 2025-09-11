@@ -20,6 +20,15 @@ class UserSeeder extends Seeder
             'name' => 'AdmireJustice',
             'email' => 'chenmy1989@gmail.com',
             'password' => Hash::make('JessicaTienTien'),
+            'is_product_manager' => true,
+        ]);
+        $user->save();
+
+        $user = new User([
+        	'name' => '媽媽',
+        	'email' => 'linyujoyce@gmail.com',
+        	'password' => Hash::make('60093811'),
+        	'is_product_manager' => false,
         ]);
         $user->save();
     }
