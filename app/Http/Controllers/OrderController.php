@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ProductItem;
 use App\Models\ProductCategory;
+use App\Models\OrderList;
 use App\Support\SessionReader;
 use Inertia\Inertia;
 
@@ -28,8 +29,8 @@ class OrderController extends Controller
             'items' => $items,
         ]);
     }
-    public function cart(Request $request, SessionReader $sessionReader){
-
+    public function cart(Request $request, SessionReader $sessionReader)
+    {
     	if (isset($request->id) && isset($request->quantity)){
     		
     		$request->session()->increment($request->id,(int) $request->quantity);
@@ -37,10 +38,12 @@ class OrderController extends Controller
     	}
 
     	$cart = $sessionReader->all();
+    	//dd($cart);
+    	//dd(session()->all());
 
     	$categories = ProductCategory::pluck('name','id');
-
-    	if ($cart==null){return Inertia::render('ProductOrder/Cart');}else{
+    	//購物車為空 或 session第一個key不是數字like id
+    	if ($cart==null || !is_numeric(array_key_first($cart))){return Inertia::render('ProductOrder/Cart',['categories' => $categories]);}else{
     		$items = [];
     	foreach ($cart as $id => $quantity){
     		$itemDB = ProductItem::findOrFail($id);
@@ -53,13 +56,44 @@ class OrderController extends Controller
     		$items[] = $item;
     	}
 
-    	//dd(session()->all());
-
     	return Inertia::render('ProductOrder/Cart', [
             'items' => $items,
             'categories' => $categories
         ]);}
     }
+
+    public function submitProcess(Request $request)
+    {
+    	try{
+	    	$data = $request->all();
+	    	$json = [];
+	    	$price = 0;
+	    	foreach ($data as $item) {
+	    		$item['stock'] = $item['stock'] - $item['quantity'];
+	    		if ($item['stock'] < 0){
+	    			abort(400, "{$item['name']}的購買量超過庫存量");
+	    		}
+	    		ProductItem::where('id','=',$item['id'])->update(['stock' => $item['stock']]);
+	    		unset($item['stock']);
+	    		$json[] = $item;
+	    		$price += $item['price']*$item['quantity'];
+	    		session()->forget($item['id']);
+	    	}
+	    	OrderList::create([
+	    		'user_id' => auth()->id(),
+	    		'order' => $json,
+	    		'price' => $price,
+	    	]);
+	    	
+	    	return redirect()->route('productOrder.cart')->with(['success' => '訂單已成功送出！']);
+	    	//session key不能為數字
+
+    	}catch(\Exception $e){
+    		
+    		return redirect()->route('productOrder.cart')->withErrors(['error' => $e->getMessage(), 'status' => $e->getStatusCode()]); //不能用getCode()方法，會變0
+    	}
+    }
+
     public function ajax(Request $request){
 
     	$action = $request->query('action'); // 取出 GET 參數

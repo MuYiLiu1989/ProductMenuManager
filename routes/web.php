@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('api',[ProductItemController::class, 'index'])->middleware('auth:sanctum')->name('productOrder.api');
         Route::match(['get','post'],'cart', [OrderController::class, 'cart'])->name('productOrder.cart');
         Route::post('ajax', [OrderController::class, 'ajax'])->name('productOrder.ajax');
+        Route::post('submit',[OrderController::class, 'submitProcess'])->name('productOrder.submitProcess');
         Route::get('orderlist', [OrderController::class, 'orderlist'])->name('productOrder.orderlist');
     });
 });

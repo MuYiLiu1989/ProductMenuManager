@@ -102,6 +102,11 @@
                                                 <td colspan="4" class="px-6 py-8 text-black text-2xl">
                                                     總計：{{ totalPrice }}
                                                 </td>
+                                                <td colspan="3" class="px-6 py-8 text-black text-xl text-right">
+                                                	<button @click="submitCart" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-block transition-colors duration-200">
+                                                		送出訂單
+                                                	</button>
+                                                </td>
                                             </tr>
                                         
                                             <tr v-if="localItems.length === 0">
@@ -151,6 +156,15 @@ const totalPrice = computed(() => {
   return localItems.value.reduce((sum, item) => sum + item.price*item.quantity, 0);
 })
 
+//重新進一次controller再跑一次(可能多帶個get參數)
+const onChange = () => {
+  router.get(route('productOrder.cart'), {
+    preserveScroll: true, //是否滾動
+    preserveState: true, //響應式變數是否留存
+    replace: true, // 可選，避免新增歷史紀錄
+  })
+}
+
 async function crement(item,plus) {
 	try{
 		
@@ -188,6 +202,38 @@ async function deleteItem(item){
             confirmButtonText: '確定'
         });
 	}
+}
+
+function submitCart(){
+	router.post(route('productOrder.submitProcess'), localItems.value, {
+		onSuccess: (page) => {
+			const successMessage = page.props.flash?.success;
+            if (successMessage) {
+                Swal.fire({
+                    title: '成功！',
+                    text: successMessage,
+                    icon: 'success',
+                    confirmButtonText: '確定'
+                });
+                onChange();
+            }
+  		},
+  		onError: (errors) => {
+    		const errorMessage = errors.error;
+            const errorStatus = errors.status;
+            if (errorMessage){
+                Swal.fire({
+                    title: '錯誤！錯誤碼：'+ errorStatus,
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: '確定'
+                });
+            }
+  		},
+  		onFinish: () => {
+    		console.log('無論成功或失敗都會執行')
+  		},
+	});	
 }
 
 </script>

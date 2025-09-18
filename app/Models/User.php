@@ -48,4 +48,9 @@ class User extends Authenticatable
             'is_product_manager' => 'boolean',
         ];
     }
+
+    public function orderLists()
+    {
+        return $this->hasMany(OrderList::class);
+    }
 }
