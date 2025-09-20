@@ -121,7 +121,24 @@ class OrderController extends Controller
     	}
     }
 
-    public function orderlist(){
-    	
+    public function orderlist()
+    {
+    	$categories = ProductCategory::pluck('name','id');
+
+    	if(auth()->user()->is_product_manager){
+    		$OrderLists = OrderList::with('user')->orderBy('created_at','desc')->get();
+    		$is_product_manager = true;
+    		$username = null;
+    	}else{
+    		$OrderLists = OrderList::where('user_id',auth()->id())->orderBy('created_at','desc')->get();
+    		$is_product_manager = false;
+    		$username = auth()->user()->name;
+    	}
+    	return Inertia::render('ProductOrder/OrderLists',[
+    		'orderLists' => $OrderLists,
+    		'categories' => $categories,
+    		'is_product_manager' => $is_product_manager,
+    		'username' => $username,
+    	]);
     }
 }
