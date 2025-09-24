@@ -3,26 +3,25 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProductItem;
-use App\Models\ProductCategory;
-use App\Http\Resources\ProductItemResource;
+use App\Models\OrderList;
+use App\Http\Resources\OrderListResource;
 use Illuminate\Http\Request;
 
-class ProductItemController extends Controller
+class OrderListController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $categoryId = $request->query('categoryId'); // 取出 GET 參數
-        
-        if ($categoryId) {
-            $items = ProductItem::where('is_visible',1)->where('category_id', $categoryId)->orderBy('sort')->get();
+        $user = $request->user();
+      
+        if ($user->is_product_manager) {
+            $items = OrderList::orderBy('created_at','desc')->get();
         }else{
-        	$items = [];
+        	$items = OrderList::where('user_id', $user->id)->orderBy('created_at','desc')->get();
         }
-        return ProductItemResource::collection($items)->additional([
+        return OrderListResource::collection($items)->additional([
     		'meta' => ['status' => 'success','requested_at' => now()->toDateTimeString(),'count' => $items->count()]
 		]);
     }

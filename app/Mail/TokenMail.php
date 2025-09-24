@@ -16,7 +16,7 @@ class TokenMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public string $accessToken)
+    public function __construct(public string $tokentype, public string $accessToken)
     {
         //
     }
@@ -27,7 +27,7 @@ class TokenMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'ApiToken Mail',
+            subject: "{$this->tokentype} ApiToken Mail",
         );
     }
 

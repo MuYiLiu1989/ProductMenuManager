@@ -200,7 +200,7 @@ function orderProducts(itemId,index) {
 
 async function getToken(){
 	try{
-		const response = await axios.post('/api/login');
+		const response = await axios.post('/api/login',{tokentype:'productList'});
 		Swal.fire({
             title: '成功！',
             text: response.data.message,

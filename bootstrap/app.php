@@ -3,7 +3,10 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
+use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 use Illuminate\Auth\AuthenticationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,15 +21,28 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        $middleware->alias([
+        	'abilities' => CheckAbilities::class,
+        	'ability' => CheckForAnyAbility::class,
+    	]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // 👇 針對 Sanctum 認證失敗
+    
     $exceptions->render(function (AuthenticationException $e, $request) {
         return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'requested_at' => now(),
-            ], 401); //$this->getStatusCode($e) 401換成這個會redirect to a 網頁
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'requested_at' => now()->toDateTimeString(),
+        ], 401); //$this->getStatusCode($e) 401換成這個會redirect to a 網頁
     });
+	
+    $exceptions->render(function (AccessDeniedHttpException $e, $request) {
+    	return response()->json([
+        	'status' => 'error',
+        	'message' => $e->getMessage(),
+        	'requested_at' => now()->toDateTimeString(),
+    	], 403);
+	});
+
     })->create();

@@ -5,12 +5,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\ProductItemController;
+use App\Http\Controllers\Api\OrderListController;
 
 Route::get('/user', function (Request $request) {
     return ['data' => User::all(),
         'meta' => [
             'status' => 'success',
-            'requested_at' => now(),
+            'requested_at' => now()->toDateTimeString(),
             'count' => User::count()
         ]
     ];
@@ -22,5 +23,7 @@ Route::get('route',[ApiController::class, 'route']);
 Route::get('categoryId',[ApiController::class, 'categoryId']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
-	Route::get('productItem',[ProductItemController::class, 'index']);
+    Route::get('productItem', [ProductItemController::class, 'index'])->middleware(['ability:productList']);
+    Route::get('orderlist', [OrderListController::class, 'index'])->middleware(['ability:orderList']);  
 });
+

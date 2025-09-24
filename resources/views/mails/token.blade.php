@@ -8,7 +8,7 @@
 <body>
 
     <!-- 內容 -->
-    <h3>API token碼</h3>
+    <h3>{{ $tokentype }} API token碼</h3>
     <p></p>
     <p>token碼: {{ $accessToken }}</p>
     <p></p>

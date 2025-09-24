@@ -5,6 +5,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductManage\CategoryController;
 use App\Http\Controllers\ProductManage\ItemController;
 use App\Http\Controllers\Api\ProductItemController;
+use App\Http\Controllers\Api\OrderListController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('submit',[OrderController::class, 'submitProcess'])->name('productOrder.submitProcess');
         Route::get('orderlist', [OrderController::class, 'orderlist'])->name('productOrder.orderlist');
     });
+    Route::get('orderlist/api',[OrderListController::class,'index'])->middleware('auth:sanctum')->name('orderlist.api');
 });
 
 Route::middleware('auth')->group(function () {

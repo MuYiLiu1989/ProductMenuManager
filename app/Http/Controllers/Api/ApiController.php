@@ -16,20 +16,21 @@ class ApiController extends Controller
 {
     public function getToken(Request $request)
     {
+    	$tokentype = $request->tokentype;
     	$user = $request->user();
     	$exipire_at = new DateTime();
         $exipire_at->add(new DateInterval('PT1H'));
-        $accessToken = $user->createToken('api-token', ['bearer-token'], $exipire_at)->plainTextToken;
+        $accessToken = $user->createToken('api-token', [$tokentype], $exipire_at)->plainTextToken;
 
         $query = PersonalAccessToken::where('tokenable_type', 'App\Models\User')->where('tokenable_id', $user->id);
         $query->whereNotIn('id', (clone $query)->orderByDesc('created_at')->take(5)->pluck('id'))->delete();
         try{
-    	Mail::to($user->email)->send(new TokenMail($accessToken));
+    	Mail::to($user->email)->send(new TokenMail($tokentype,$accessToken));
     	}catch(\Exception $e){
     		dd($e->getMessage());
     	}
 
-    	return response()->json(['status'=>true,'message'=>'token信件已成功寄出！']);
+    	return response()->json(['status'=>true,'message'=>"{$tokentype}的token信件已成功寄出！"]);
     }
 
     public function route()

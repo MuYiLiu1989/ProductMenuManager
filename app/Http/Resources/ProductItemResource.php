@@ -25,8 +25,8 @@ class ProductItemResource extends JsonResource
         	'stock' => $this->stock,
         	'price' => $this->price,
         	'sort' => $this->sort,
-        	'updated_at' => $this->updated_at,
-        	'created_at' => $this->created_at,
+        	'updated_at' => $this->updated_at->toDateTimeString(),
+        	'created_at' => $this->created_at->toDateTimeString(),
         ];
     }
     /*

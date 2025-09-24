@@ -14,6 +14,21 @@
                             <h2 v-else class="text-2xl font-bold text-gray-800">{{username}}送出訂單紀錄</h2>
                             <h2 class="text-2xl font-bold text-gray-800">共{{localOrders.length}}筆</h2>
                             <h2 class="text-2xl font-bold text-gray-800">共{{totalPrice}}元</h2>
+                            <div class="flex space-x-3">
+                                <button 
+                                    class="px-4 py-2 bg-blue-500 hover:bg-blue-600  text-white font-medium rounded-lg shadow-sm transition-colors duration-200 flex items-center space-x-2"
+                                >
+                                    
+                                    <a :href="route('orderlist.api')">api預覽</a>
+                                </button>
+                                <button 
+                                    class="px-4 py-2 bg-green-500 hover:bg-green-600  text-white font-medium rounded-lg shadow-sm transition-colors duration-200 flex items-center space-x-2"
+                                    @click="getToken"
+                                >
+                                    
+                                    <span>取得token</span>
+                                </button>
+                            </div>
                         </div>    
                         
                         <div v-for="orderlist in localOrders" class="overflow-x-auto">
@@ -158,6 +173,25 @@ async function deleteItem(item){
 	        icon: 'error',
             confirmButtonText: '確定'
         });
+	}
+}
+
+async function getToken(){
+	try{
+		const response = await axios.post('/api/login',{tokentype:'orderList'});
+		Swal.fire({
+            title: '成功！',
+            text: response.data.message,
+            icon: 'success',
+            confirmButtonText: '確定'
+        });
+	} catch (error){
+		Swal.fire({
+	        title: '失敗！',
+	        text: error,
+	        icon: 'error',
+	        confirmButtonText: '確定'
+	    });
 	}
 }
 
