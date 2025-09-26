@@ -191,9 +191,12 @@ const handleFormError = (errors) => {
                                     <!-- focus:ring-2 矩形外框 -->
                                     <span v-if="form.errors.is_visible" class="text-red-500 text-sm mt-1 block">{{ form.errors.is_visible }}</span>    
                                 </fieldset>
+                                <!--
                                 <h2 v-if="isEditing && props.item.sort==0">
                                     排序未更新
                                 </h2>
+                                針對無sort值的項目來建立其sort值，現在已經不需要了，因為項目在新增的時候就建立好sort值了
+                            	-->
 	                            <div class="flex gap-3 my-6 mx-2 justify-end">
 	                            	<!--原本是mt-6，新增跟取消上下變很大，取消沒上下置中-->
 	                                <button 
@@ -209,6 +212,7 @@ const handleFormError = (errors) => {
 	                                >
 	                                    取消
 	                                </Link>
+	                                <!-- 按取消可以維持原本的類別選項 -->
 	                            </div>
                         	</div>
                         </form>

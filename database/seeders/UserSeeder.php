@@ -14,9 +14,10 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('users')->truncate();
+        DB::table('users')->delete();
 
         $user = new User([
+        	'id' => 1,
             'name' => 'AdmireJustice',
             'email' => 'chenmy1989@gmail.com',
             'password' => Hash::make('JessicaTienTien'),
@@ -25,7 +26,8 @@ class UserSeeder extends Seeder
         $user->save();
 
         $user = new User([
-        	'name' => '媽媽',
+        	'id' => 3,
+        	'name' => 'Joyce',
         	'email' => 'linyujoyce@gmail.com',
         	'password' => Hash::make('60093811'),
         	'is_product_manager' => false,

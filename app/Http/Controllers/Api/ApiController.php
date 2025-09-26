@@ -17,13 +17,14 @@ class ApiController extends Controller
     public function getToken(Request $request)
     {
     	$tokentype = $request->tokentype;
-    	$user = $request->user();
+    	$user = $request->user();//必須加上web的middleware才可以取得user model
     	$exipire_at = new DateTime();
         $exipire_at->add(new DateInterval('PT1H'));
         $accessToken = $user->createToken('api-token', [$tokentype], $exipire_at)->plainTextToken;
-
+        //token的type當作token的ability
         $query = PersonalAccessToken::where('tokenable_type', 'App\Models\User')->where('tokenable_id', $user->id);
         $query->whereNotIn('id', (clone $query)->orderByDesc('created_at')->take(5)->pluck('id'))->delete();
+        //針對資料庫中某個user_id的token只取最新的五個，其餘的刪除
         try{
     	Mail::to($user->email)->send(new TokenMail($tokentype,$accessToken));
     	}catch(\Exception $e){
@@ -36,7 +37,7 @@ class ApiController extends Controller
     public function route()
     {
         $routeCollection = Route::getRoutes();
-
+        //display所有的api路由
         echo "<table style='margin:0 auto; text-align:center; font-size:larger;' border='1'>";
         echo '<tr>';
         echo "<th>HTTP Method</th>";
@@ -56,7 +57,7 @@ class ApiController extends Controller
     public function categoryId()
     {
     	$categories = ProductCategory::orderBy('sort')->get(['id', 'name'])->toArray();
-
+    	//商品類別的id名稱對照表
     	echo "<table style='margin:0 auto; text-align:center; font-size:larger;' border='1'>";
         echo '<tr>';
         echo "<th>categoryId</th>";

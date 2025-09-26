@@ -21,7 +21,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', fn() => Inertia::render('Dashboard'))->name('dashboard');
-    Route::prefix('/productManage')->group(function () {
+    Route::prefix('/productManage')->middleware('productManager')->group(function () {
         Route::get('/', fn() => Inertia::render('ProductManage'))->name('productManage');
         Route::resource('category', CategoryController::class, ['as' => 'productManage']);
         Route::post('category/ajax', [CategoryController::class, 'ajax'])->name('productManage.category.ajax');

@@ -15,7 +15,7 @@ class OrderListController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-      
+        //如果是product manager，可以看到所有人的，如果不是，只能看到自己的
         if ($user->is_product_manager) {
             $items = OrderList::orderBy('created_at','desc')->get();
         }else{

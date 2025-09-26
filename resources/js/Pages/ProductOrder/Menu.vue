@@ -13,7 +13,7 @@
                             <h2 class="text-2xl font-bold text-gray-800">商品列表</h2>
                             <div class="hidden lg:block">
                             	<h2 class="text-2xl font-bold text-gray-800">種類：{{categories.find(cat=>cat.id==selectedId)?.name}}</h2>
-                            	<!--直接用key對value的形式順序會跑掉-->
+                            	<!--直接用key對value的形式select選單順序會跑掉-->
                         	</div>
                             <div class="my-2 flex items-center gap-4">
 							  <label class="text-2xl font-bold text-gray-800 whitespace-nowrap">類別：</label>
@@ -152,25 +152,24 @@ const props = defineProps({
         type: Array,
         default: []
     },
-    //經後端變成鍵值對應
+    //經後端變成[id,name]串列的集合
     items: {
         type: Array,
         default: []
     }
     //經後端篩選過的items array
 });
-// localItems是本地創建的響應式副本from props.items用於拖曳
+
 
 const params = new URLSearchParams(window.location.search);
 var categoryId = params.get('categoryId')??'';//請選擇類別的value是''
 
 const selectedId = ref(categoryId);
-const localItems = ref([...props.items]); //與draggable的變化同步(v-model)
+const localItems = ref([...props.items]);
+// localItems是本地創建的響應式副本from props.items 
 //ref裡的內容之後更新路由(updated)都不會用到(select選單一換類別馬上show出該類別項目，靠監聽)，除非按取消回來這裡或第一次進來這(mounted)
 
-//const newOrder = ref([]); //如果沒拖曳半次就送出會送出空串列
-
-//重新進一次controller再跑一次(可能多帶個get參數)
+//重新進一次controller再跑一次，更新props.items(可能多帶個get參數)
 const onChange = () => {
   router.get(route('productOrder.menu'), { categoryId: selectedId.value }, {
     preserveScroll: true, //是否滾動
@@ -186,21 +185,18 @@ watch(() => props.items, (newItems) => {
 }, { deep: true });
 //如果不用監聽改用computed的get and set，這樣會害localItems變成唯讀(因為拖曳順序會改變localItems裡array的順序)，不然就要撰寫set內容
 
-// 是否可拖曳
-//const isDraggable = ref(false);
-
-// 每拖曳完成一次後儲存新順序，按結束按鈕後isDraggable=false，儲存最終順序送ajax到後端
-
-const productOrder = ref([]) // 存放所有 input DOM
-//增減庫存量
+const productOrder = ref([]) 
+// 存放所有 input elements，key是menu欄位從上往下數的index，value是input欄位element
 function orderProducts(itemId,index) {
     router.post(route('productOrder.cart',{id:itemId}), {
         quantity: productOrder.value[index]?.value});
 }
+//把商品的id跟訂購數量送到cart購物車
 
 async function getToken(){
 	try{
 		const response = await axios.post('/api/login',{tokentype:'productList'});
+		//把token的type name一起存進去
 		Swal.fire({
             title: '成功！',
             text: response.data.message,

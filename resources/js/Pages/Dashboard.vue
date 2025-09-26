@@ -1,6 +1,26 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
+import { onMounted} from 'vue';
+import Swal from 'sweetalert2';
+
+onMounted(() => {
+	console.log("Mounted!");
+	const Pages = usePage();
+    const flashSuccess = Pages.props.flash?.message;
+    // 檢查是否有成功訊息需要顯示
+    console.log(flashSuccess);
+    if (flashSuccess) {
+        Swal.fire({
+            title: 'Oh No！',
+            text: flashSuccess,
+            icon: 'error',
+            confirmButtonText: '確定'
+        });
+    }
+});
+
 </script>
 
 <template>
@@ -21,7 +41,7 @@ import { Head } from '@inertiajs/vue3';
                     class="overflow-hidden bg-white shadow-sm sm:rounded-lg"
                 >
                     <div class="p-6 text-gray-900">
-                        You're logged in!
+                        You're logged in! Welcome to my ProductMenu System!
                     </div>
                 </div>
             </div>

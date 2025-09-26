@@ -142,6 +142,7 @@ class ItemController extends Controller
                 'sort' => (ProductItem::where("category_id",$request->category_id)->max('sort') ?? 0) + 1,
             ]);
         }
+        //為了處理沒有sort值的項目，如果新增該項目時就自動存好sort值，就不需要這段程式碼
 
         return redirect()->route('productManage.item.edit', $id)
             ->with('success', '項目已成功更新！');
@@ -174,7 +175,8 @@ class ItemController extends Controller
     			array_pop($orginRrequest); //去掉action=sort這個
         		$bigRequest['sortChangeNum'] = $orginRrequest;
 		        $validator = Validator::make($bigRequest, [
-		        	'sortChangeNum' => 'required|array|min:1',
+		        	'sortChangeNum' => 'required|array|min:1', 
+		        	//為了避免沒有挪動半次就要儲存新順序
 		            'sortChangeNum.*.id' => 'required|exists:product_items,id',
 		            'sortChangeNum.*.sort' => 'required|integer',
 		        ],[

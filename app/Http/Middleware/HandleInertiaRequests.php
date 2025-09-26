@@ -37,6 +37,7 @@ class HandleInertiaRequests extends Middleware
             // 明確覆蓋 flash 訊息，傳遞實際內容而非布林值
             'flash' => [
                 'success' => $request->session()->get('success'),
+                'message' => $request->session()->get('message'),
                 'error' => $request->session()->get('error'),
             ],
         ];

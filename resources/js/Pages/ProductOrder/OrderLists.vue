@@ -127,7 +127,7 @@ const props = defineProps({
         type: Array,
         default: []
     },
-    //經後端篩選過的items array
+    //if is_product_manager==false，這就是經後端篩選過的orderlists array，只能看自己的
     categories: {
     	type: Object,
     	default: null
@@ -141,25 +141,17 @@ const props = defineProps({
     	default: null
     }
 });
-// localItems是本地創建的響應式副本from props.items用於拖曳
+// localOrders是本地創建的響應式副本from props.orderLists
 
-//const selectedId = ref(categoryId);
-const localOrders = ref([...props.orderLists]); //與draggable的變化同步(v-model)，不過這裡的locatItems是唯讀
-//ref裡的內容之後加加減減(updated)都不會用到，要自己更新頁面內容，除非離開後回來這裡或第一次進來這(mounted)
+const localOrders = ref([...props.orderLists]); 
+//ref裡的內容之後加加減減(是updated不是mounted)都不會用到，要自己更新頁面內容，除非離開後回來這裡或第一次進來這(mounted)
 
 const totalPrice = computed(() => {
   return localOrders.value.reduce((sum, item) => sum + item.price, 0);
 })
+//計算消費總額
 
-//重新進一次controller再跑一次(可能多帶個get參數)
-const onChange = () => {
-  router.get(route('productOrder.cart'), {
-    preserveScroll: true, //是否滾動
-    preserveState: true, //響應式變數是否留存
-    replace: true, // 可選，避免新增歷史紀錄
-  })
-}
-
+/*
 async function deleteItem(item){
 	try{
 		const response = await axios.post(route('productOrder.ajax'), {id: item.id},{params:{action:'delete'}});
@@ -175,10 +167,13 @@ async function deleteItem(item){
         });
 	}
 }
+*/
+//如果需要選擇刪除某個submit的訂單時可以用
 
 async function getToken(){
 	try{
 		const response = await axios.post('/api/login',{tokentype:'orderList'});
+		//把token的type name一起存進去
 		Swal.fire({
             title: '成功！',
             text: response.data.message,

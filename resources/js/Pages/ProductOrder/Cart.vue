@@ -140,7 +140,7 @@ const props = defineProps({
         type: Array,
         default: []
     },
-    //經後端篩選過的items array
+    //經後端session取出來的items array
     categories: {
     	type: Object,
     	default: null
@@ -148,15 +148,15 @@ const props = defineProps({
 });
 // localItems是本地創建的響應式副本from props.items用於拖曳
 
-//const selectedId = ref(categoryId);
-const localItems = ref([...props.items]); //與draggable的變化同步(v-model)，不過這裡的locatItems是唯讀
+const localItems = ref([...props.items]); 
+
 //ref裡的內容之後加加減減(updated)都不會用到，要自己更新頁面內容，除非離開後回來這裡或第一次進來這(mounted)
 
 const totalPrice = computed(() => {
   return localItems.value.reduce((sum, item) => sum + item.price*item.quantity, 0);
 })
 
-//重新進一次controller再跑一次(可能多帶個get參數)
+//重新進一次route->controller再跑一次更新成資料庫的內容
 const onChange = () => {
   router.get(route('productOrder.cart'), {
     preserveScroll: true, //是否滾動
@@ -165,6 +165,7 @@ const onChange = () => {
   })
 }
 
+//個別item的++--
 async function crement(item,plus) {
 	try{
 		

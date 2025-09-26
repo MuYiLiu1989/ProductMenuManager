@@ -18,7 +18,7 @@ import { Head } from '@inertiajs/vue3';
                     class="overflow-hidden bg-white shadow-sm sm:rounded-lg"
                 >
                     <div class="p-6 text-gray-900">
-                        I am logged in!
+                        這裡可以查看API並獲取其token。
                     </div>
                 </div>
             </div>

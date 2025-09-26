@@ -34,15 +34,17 @@ class OrderController extends Controller
     	if (isset($request->id) && isset($request->quantity)){
     		
     		$request->session()->increment($request->id,(int) $request->quantity);
+    		//對session key為某id的值添加某個數量，如果查無此id就新增該id，數量從0開始算
 
     	}
 
-    	$cart = $sessionReader->all();
+    	$cart = $sessionReader->all(); //只取出自己設定的session key，排除laravel框架預設的
     	//dd($cart);
     	//dd(session()->all());
 
     	$categories = ProductCategory::pluck('name','id');
-    	//購物車為空 或 session第一個key不是數字like id
+    	//購物車為空 或 session第一個key不是數字like id，
+    	//這來自於->with(['success'=>'訂單已成功送出！'])存的flash session
     	if ($cart==null || !is_numeric(array_key_first($cart))){return Inertia::render('ProductOrder/Cart',['categories' => $categories]);}else{
     		$items = [];
     	foreach ($cart as $id => $quantity){
@@ -90,14 +92,16 @@ class OrderController extends Controller
 
     	}catch(\Exception $e){
     		
-    		return redirect()->route('productOrder.cart')->withErrors(['error' => $e->getMessage(), 'status' => $e->getStatusCode()]); //不能用getCode()方法，會變0
+    		return redirect()->route('productOrder.cart')->withErrors(['error' => $e->getMessage(), 'status' => $e->getStatusCode()]); 
+    		//不能用getCode()方法，會變0
+    		//session flash存的地方本來就在laravel框架裡的session key，自然會被我排除，不會跟購物車的session key衝突到
     	}
     }
 
     public function ajax(Request $request){
 
     	$action = $request->query('action'); // 取出 GET 參數
-
+    	//三個動作：對購物車項目執行 加、減數量、刪除該項目
     	switch ($action){
     		case 'plus':
     			$request->session()->increment($request->input('id'));
@@ -124,7 +128,7 @@ class OrderController extends Controller
     public function orderlist()
     {
     	$categories = ProductCategory::pluck('name','id');
-
+    	//如果是product manager，可以看到所有人的，如果不是，只能看到自己的
     	if(auth()->user()->is_product_manager){
     		$OrderLists = OrderList::with('user')->orderBy('created_at','desc')->get();
     		$is_product_manager = true;

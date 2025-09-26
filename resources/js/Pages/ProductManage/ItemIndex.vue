@@ -195,8 +195,8 @@ const props = defineProps({
 
 const params = new URLSearchParams(window.location.search);
 var categoryId = params.get('categoryId')??'';//請選擇類別的value是''
+const selectedId = ref(categoryId); //為了修改按取消時可讀取原來的類別
 
-const selectedId = ref(categoryId);
 const localItems = ref([...props.items]); //與draggable的變化同步(v-model)
 //ref裡的內容之後更新路由(updated)都不會用到(select選單一換類別馬上show出該類別項目，靠監聽)，除非按取消回來這裡或第一次進來這(mounted)
 
@@ -278,7 +278,9 @@ async function switchVisible(element) {
         }
     }
 
-const stockInputs = ref([]) // 存放所有 input DOM
+const stockInputs = ref([])
+// 存放所有 input elements，key是index欄位從上往下數的index，value是input欄位element
+
 //增減庫存量
 function updateStock(itemId,index) {
     axios.post(route('productManage.item.ajax'), {

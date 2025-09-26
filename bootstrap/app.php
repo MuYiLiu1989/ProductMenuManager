@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
         	'abilities' => CheckAbilities::class,
         	'ability' => CheckForAnyAbility::class,
+        	'productManager' => \App\Http\Middleware\EnsureUserIsProductManager::class,
     	]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
