@@ -13,6 +13,7 @@ class ProductCategorySeeder extends Seeder
     public function run(): void
     {
         DB::table('product_categories')->delete();
+        //如果有被其他table引用為foreign key的話，要用delete
         DB::table('product_categories')->Insert([
             array('is_enable' => '1','is_visible' => '1','id' => '39','name' => '衛浴用品','sort' => '5','updated_at' => '2025-08-02 12:53:51','created_at' => '2025-07-29 11:14:56'),
 		    array('is_enable' => '1','is_visible' => '1','id' => '40','name' => '冷凍食品','sort' => '3','updated_at' => '2025-08-02 12:53:51','created_at' => '2025-07-29 11:15:08'),

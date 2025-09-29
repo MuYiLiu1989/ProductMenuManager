@@ -40,6 +40,7 @@ class HandleInertiaRequests extends Middleware
                 'message' => $request->session()->get('message'),
                 'error' => $request->session()->get('error'),
             ],
+            //parent裡面只有validation error，flash內有列出來的才會從flash session轉到pages.props.flash.裡面
         ];
     }
 }

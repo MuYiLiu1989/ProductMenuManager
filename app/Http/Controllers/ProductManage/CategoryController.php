@@ -50,11 +50,7 @@ class CategoryController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-
-        $data = [
-        	'name' => $request->name,
-            'sort' => (ProductCategory::max('sort') ?? 0) + 1,
-        ];
+		驗證失敗後自動拋出例外而不自己處理
 		*/
         $data['sort'] = (ProductCategory::max('sort') ?? 0) + 1;
 
@@ -106,10 +102,7 @@ class CategoryController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-
-        $category->update([
-            'name' => $request->name,
-        ]);
+		驗證失敗後自動拋出例外而不自己處理
         */
         $category->update($data);
     

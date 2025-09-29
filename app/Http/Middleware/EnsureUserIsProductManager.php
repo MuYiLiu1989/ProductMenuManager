@@ -18,6 +18,7 @@ class EnsureUserIsProductManager
     	//dd(auth()->user()->is_product_manager);
         if (!auth()->user()->is_product_manager) {
             return redirect()->route('dashboard')->with(['message' => '您不是 product manager，無權進入 productManage 頁面管理商品！']);
+            //只能存進session flash，不會自動存進pages.props.flash.
         }
         return $next($request);
     }

@@ -66,15 +66,7 @@ class ItemController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-
-        $data = [
-        	'is_visible' => $request->is_visible,
-        	'name' => $request->name,
-        	'category_id' => $request->category_id,
-        	'price' => $request->price,
-        	'stock' => $request->stock,
-            'sort' => (ProductItem::where("category_id",$request->category_id)->max('sort') ?? 0) + 1,
-        ];
+		驗證失敗後自動拋出例外而不自己處理
         */
 
         ProductItem::create($data);
@@ -126,14 +118,7 @@ class ItemController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-
-        $item->update([
-        	'is_visible' => $request->is_visible,
-            'name' => $request->name,
-            'category_id' => $request->category_id,
-            'price' => $request->price,
-            'stock' => $request->stock,
-        ]);
+		驗證失敗後自動拋出例外而不自己處理
 		*/
         $item->update($data);
 

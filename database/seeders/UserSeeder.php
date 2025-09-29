@@ -14,8 +14,8 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('users')->delete();
-
+        DB::table('users')->delete();//如果有被其他table引用為foreign key的話，要用delete
+        //id在orderlist已經有了，這裡的id要跟orderlist裡的對上
         $user = new User([
         	'id' => 1,
             'name' => 'AdmireJustice',
