@@ -165,17 +165,15 @@ function savetoAjax() {
           icon: 'success',
           confirmButtonText: '確定'
         });
-      }
-    })
-    .catch(error => {
-      console.error('儲存失敗:', error);
-      Swal.fire({
-        title: '錯誤！',
-        text: '儲存失敗，請稍後再試。',
-        icon: 'error',
-        confirmButtonText: '確定'
-      });
-    });
+      }else{
+      	Swal.fire({
+      	  title: '失敗！',
+          text: response.data.errors,
+          icon: 'error',
+          confirmButtonText: '確定'
+      	});
+    }    
+});
 }
 
 // 刪除種類的方法

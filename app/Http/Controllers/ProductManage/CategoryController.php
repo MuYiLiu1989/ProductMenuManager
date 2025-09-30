@@ -130,10 +130,14 @@ class CategoryController extends Controller
 
     public function ajax(Request $request)
     {
+        $newRequest["submitdata"] = $request->all();
         // 驗證請求資料是陣列格式
-        $validator = Validator::make($request->all(), [
-            '*.id' => 'required|exists:product_categories,id',
-            '*.sort' => 'required|integer',
+        $validator = Validator::make($newRequest, [
+        	'submitdata' => 'required|array|min:1',
+            'submitdata.*.id' => 'required|exists:product_categories,id',
+            'submitdata.*.sort' => 'required|integer',
+        ],[
+        	'submitdata.required' => "至少須挪動一次！"
         ]);
     
         if ($validator->fails()) {
@@ -144,7 +148,7 @@ class CategoryController extends Controller
         }
     
         // 處理陣列資料
-        $data = $request->all();
+        $data = $newRequest["submitdata"];
         
         foreach ($data as $item) {
             ProductCategory::where('id', $item['id'])->update(['sort' => $item['sort']]);
